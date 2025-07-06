@@ -76,6 +76,9 @@ with st.sidebar:
 # Load model
 model = load_model()
 
+# Upload instruction
+st.warning("⚠️ Please upload clear images of houses only. Irrelevant or blurred images may be rejected.")
+
 # Upload
 uploaded_files = st.file_uploader("Upload house image(s)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
