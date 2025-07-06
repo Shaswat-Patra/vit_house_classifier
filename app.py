@@ -51,7 +51,7 @@ def main():
     app_mode = st.sidebar.radio("Choose Mode", ["🏠 Home", "ℹ️ About", "👨‍💻 Developer Info"])
 
     if app_mode == "🏠 Home":
-        uploaded_file = st.file_uploader("📸 Choose a house image", type=["jpg", "jpeg", "png", "webp"])
+        uploaded_files = st.file_uploader("Upload image(s) of house", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
         
         if uploaded_file is not None:
             image = Image.open(uploaded_file).convert("RGB")
