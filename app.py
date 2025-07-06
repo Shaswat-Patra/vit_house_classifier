@@ -48,7 +48,7 @@ def predict(model, image_tensor):
         max_prob = np.max(probs)
         predicted_idx = np.argmax(probs)
         if max_prob < CONFIDENCE_THRESHOLD:
-            return "❌ Cannot detect class. Please upload a valid house photo.", probs
+            return "❌ Cannot detect class. Please upload a valid full house photo.", probs
         return CLASS_NAMES[predicted_idx], probs
 
 # ------------------- Streamlit UI -------------------
