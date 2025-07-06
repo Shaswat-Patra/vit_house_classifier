@@ -6,4 +6,4 @@ gdown
 Pillow
 matplotlib
 seaborn
-
+numpy
