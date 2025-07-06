@@ -1,82 +1,94 @@
-# app.py
-# A Streamlit app to classify house images as 'Kutcha' or 'Pucca'
-
-import os
-import gdown
-
-MODEL_PATH = "best_vit_model.pth"
-DRIVE_FILE_ID = "1V-IUkXzZ0pGqN2LsON585FnL9TUdslWw"  # replace with your actual file ID
-
-# Download the model if not already present
-if not os.path.exists(MODEL_PATH):
-    print("Downloading model...")
-    gdown.download(f"https://drive.google.com/uc?id={DRIVE_FILE_ID}", MODEL_PATH, quiet=False)
-
 import streamlit as st
 import torch
-import timm
-from torchvision import transforms
+import torchvision.transforms as transforms
 from PIL import Image
+import timm
+import gdown
 import os
 
-# Title and sidebar
-st.set_page_config(page_title="Smart House Classifier", layout="centered")
-st.title(" Smart House Classifier")
-st.sidebar.title(" ℹAbout")
-st.sidebar.info(
-    "This app classifies uploaded house images into 'Kutcha' or 'Pucca' using a trained Swin Transformer model."
-)
-st.sidebar.title(" Developer Info")
-st.sidebar.markdown("**Name:** Shaswat Patra  \n**Email:** xyz.com")
+# ------------------- Configuration -------------------
+MODEL_PATH = "best_vit_model.pth"
+DRIVE_FILE_ID = "1V-IUkXzZ0pGqN2LsON585FnL9TUdslWw"  # 🔁 Replace with your real Google Drive file ID
+CLASS_NAMES = ['Kutcha House', 'Pucca House']
+CONFIDENCE_THRESHOLD = 0.75
 
-
-# Load the trained model
+# ------------------- Download Model -------------------
 @st.cache_resource
 def load_model():
-    checkpoint_path = "/content/drive/MyDrive/client deliverables/Aashdit/Efficient_dataset(REQ)/vit_models/best_vit_model.pth"
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
-    class_names = checkpoint["class_names"]
-    model = timm.create_model(
-        "swin_base_patch4_window7_224", pretrained=False, num_classes=len(class_names)
-    )
-    model.load_state_dict(checkpoint["model_state_dict"])
+    if not os.path.exists(MODEL_PATH):
+        with st.spinner("📥 Downloading model from Google Drive..."):
+            url = f"https://drive.google.com/uc?id={DRIVE_FILE_ID}"
+            gdown.download(url, MODEL_PATH, quiet=False)
+
+    model = timm.create_model('swin_base_patch4_window7_224', pretrained=False, num_classes=len(CLASS_NAMES))
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=torch.device('cpu'))['model_state_dict'])
     model.eval()
-    return model, class_names
+    return model
 
+# ------------------- Predict Function -------------------
+def predict_image(model, image):
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+    image = transform(image).unsqueeze(0)
+    with torch.no_grad():
+        outputs = model(image)
+        probs = torch.softmax(outputs, dim=1)
+        conf, pred = torch.max(probs, 1)
+    return CLASS_NAMES[pred.item()], conf.item()
 
-model, class_names = load_model()
+# ------------------- Streamlit UI -------------------
+def main():
+    st.set_page_config(page_title="🏠 House Classifier", layout="wide")
+    st.title("🏠 House Type Classifier (Kutcha vs Pucca)")
+    st.markdown("Upload an image of a house to classify it as a **Kutcha** or **Pucca** house.")
+    
+    # Sidebar
+    st.sidebar.title("🔍 Navigation")
+    app_mode = st.sidebar.radio("Choose Mode", ["🏠 Home", "ℹ️ About", "👨‍💻 Developer Info"])
 
-# Image upload
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+    if app_mode == "🏠 Home":
+        uploaded_file = st.file_uploader("📸 Choose a house image", type=["jpg", "jpeg", "png", "webp"])
+        
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file).convert("RGB")
+            st.image(image, caption="Uploaded Image", use_container_width=True)
+            st.success("✅ Image uploaded successfully!")
 
-    # Transform and predict
-    transform = transforms.Compose(
-        [
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
-    input_tensor = transform(image).unsqueeze(0)
+            if st.button("🔍 Classify Image"):
+                model = load_model()
+                with st.spinner("⏳ Analyzing image..."):
+                    predicted_class, confidence = predict_image(model, image)
+                
+                if confidence < CONFIDENCE_THRESHOLD:
+                    st.warning("⚠️ This image doesn't seem to belong to a Kutcha or Pucca house.\nPlease upload a relevant image.")
+                else:
+                    st.success(f"✅ **Predicted Class:** {predicted_class}")
+                    st.info(f"🧠 **Model Confidence:** {confidence*100:.2f}%")
 
-    if st.button("🔍 Predict"):
-        with st.spinner("Classifying..."):
-            output = model(input_tensor)
-            _, predicted = torch.max(output, 1)
-            prediction = class_names[predicted.item()]
-            confidence = torch.nn.functional.softmax(output, dim=1)[0][
-                predicted.item()
-            ].item()
+    elif app_mode == "ℹ️ About":
+        st.header("About this App")
+        st.markdown("""
+        This interactive web app uses a pretrained Vision Transformer (Swin) model to classify images of houses into:
+        - **Kutcha House**
+        - **Pucca House**
+        
+        The model was trained on a custom dataset for client presentation.  
+        Please upload only house-level photos for accurate results.
+        """)
 
-            # Confidence threshold (e.g. 80%)
-            if confidence < 0.80:
-                st.warning(
-                    " This image cannot be confidently classified. Please upload a clearer image."
-                )
-            else:
-                st.success(
-                    f" Predicted Class: **{prediction}** ({confidence*100:.2f}% confidence)"
-                )
+    elif app_mode == "👨‍💻 Developer Info":
+        st.header("Developer Info")
+        st.markdown("""
+        - 👨‍💻 **Name:** Shaswat Patra  
+        - 📧 **Email:** patrarishu@gmail.com  
+        - 🛠️ Built with [Streamlit](https://streamlit.io) and [PyTorch](https://pytorch.org)  
+        - 🗂️ Model: Swin Transformer (base)  
+        """)
+
+if __name__ == "__main__":
+    main()
+
