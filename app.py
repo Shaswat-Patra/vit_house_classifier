@@ -12,7 +12,7 @@ import requests
 # ------------------- Configuration -------------------
 MODEL_PATH = "best_vit_model.pth"
 CLASS_NAMES = ['Kutcha House', 'Pucca House']
-CONFIDENCE_THRESHOLD = 0.80
+CONFIDENCE_THRESHOLD = 0.75
 
 # ------------------- Download and Load Model -------------------
 @st.cache_resource
@@ -75,7 +75,7 @@ with st.sidebar:
 model = load_model()
 
 # Upload instruction
-st.warning("⚠️ This model is trained only on house images. Irrelevant or out-of-context images may still be classified as 'Kutcha' or 'Pucca' incorrectly. Please upload only valid house images for accurate results.")
+st.warning("⚠️ This model is trained only on house images. Irrelevant or out-of-context images may still be classified as 'Kutcha' or 'Pucca' incorrectly. Please upload only valid clear full house images for accurate results.")
 
 
 # Upload
