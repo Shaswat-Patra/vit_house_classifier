@@ -53,10 +53,14 @@ def main():
     if app_mode == "🏠 Home":
         uploaded_file = st.file_uploader("Upload image(s) of house", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
         
-        if uploaded_file is not None:
-            image = Image.open(uploaded_file).convert("RGB")
-            st.image(image, caption="Uploaded Image", use_container_width=True)
-            st.success("✅ Image uploaded successfully!")
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                st.divider()
+                st.info(f"📷 Processing: `{uploaded_file.name}`")
+                
+                image = Image.open(uploaded_file).convert("RGB")
+                st.image(image, caption="Uploaded Image", use_container_width=True)
+                st.success("✅ Image uploaded successfully!")
 
             if st.button("🔍 Classify Image"):
                 model = load_model()
