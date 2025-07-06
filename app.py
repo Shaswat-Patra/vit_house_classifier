@@ -72,7 +72,7 @@ def main():
     elif app_mode == "ℹ️ About":
         st.header("About this App")
         st.markdown("""
-        This interactive web app uses a pretrained Vision Transformer (Swin) model to classify images of houses into:
+        This interactive web app uses a pretrained Deep Learning model to classify images of houses into:
         - **Kutcha House**
         - **Pucca House**
         
@@ -85,8 +85,7 @@ def main():
         st.markdown("""
         - 👨‍💻 **Name:** Shaswat Patra  
         - 📧 **Email:** patrarishu@gmail.com  
-        - 🛠️ Built with [Streamlit](https://streamlit.io) and [PyTorch](https://pytorch.org)  
-        - 🗂️ Model: Swin Transformer (base)  
+        - 🛠️ Built with [Streamlit](https://streamlit.io) and [PyTorch](https://pytorch.org)    
         """)
 
 if __name__ == "__main__":
