@@ -7,22 +7,23 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import timm
-import gdown
+import requests
 
 # ------------------- Configuration -------------------
 MODEL_PATH = "best_vit_model.pth"
-DRIVE_FILE_ID = "1V-IUkXzZ0pGqN2LsON585FnL9TUdslWw"  # 🔁 Replace with your real Google Drive file ID
 CLASS_NAMES = ['Kutcha House', 'Pucca House']
 CONFIDENCE_THRESHOLD = 0.90
 
-# ------------------- Download Model -------------------
+# ------------------- Download and Load Model -------------------
 @st.cache_resource
 def load_model():
     if not os.path.exists(MODEL_PATH):
-        with st.spinner("📥 Downloading model from Google Drive..."):
-            url = f"https://drive.google.com/uc?id={DRIVE_FILE_ID}"
-            gdown.download(url, MODEL_PATH, quiet=False)
-    
+        with st.spinner("📥 Downloading model..."):
+            model_url = st.secrets["MODEL_URL"]
+            response = requests.get(model_url)
+            with open(MODEL_PATH, 'wb') as f:
+                f.write(response.content)
+
     checkpoint = torch.load(MODEL_PATH, map_location=torch.device('cpu'))
     model = timm.create_model('swin_base_patch4_window7_224', pretrained=False, num_classes=len(CLASS_NAMES))
     model.load_state_dict(checkpoint['model_state_dict'])
