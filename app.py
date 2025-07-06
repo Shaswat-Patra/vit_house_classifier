@@ -77,7 +77,8 @@ with st.sidebar:
 model = load_model()
 
 # Upload instruction
-st.warning("⚠️ Please upload clear images of houses only. Irrelevant or blurred images may be rejected.")
+st.warning("⚠️ This model is trained only on house images. Irrelevant or out-of-context images may still be classified as 'Kutcha' or 'Pucca' incorrectly. Please upload only valid house images for accurate results.")
+
 
 # Upload
 uploaded_files = st.file_uploader("Upload house image(s)", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
