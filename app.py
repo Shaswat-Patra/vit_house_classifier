@@ -1,5 +1,17 @@
 # app.py
 # A Streamlit app to classify house images as 'Kutcha' or 'Pucca'
+
+import os
+import gdown
+
+MODEL_PATH = "best_vit_model.pth"
+DRIVE_FILE_ID = "1V-IUkXzZ0pGqN2LsON585FnL9TUdslWw"  # replace with your actual file ID
+
+# Download the model if not already present
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model...")
+    gdown.download(f"https://drive.google.com/uc?id={DRIVE_FILE_ID}", MODEL_PATH, quiet=False)
+
 import streamlit as st
 import torch
 import timm
