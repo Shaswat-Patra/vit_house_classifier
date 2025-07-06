@@ -64,8 +64,6 @@ with st.sidebar:
     This AI model classifies house images into two categories:
     - Kutcha House
     - Pucca House
-
-    ⚠️ Irrelevant images are automatically rejected.
     """)
     st.header("👤 Developer")
     st.markdown("""
@@ -95,6 +93,10 @@ if uploaded_files:
             label, probs = predict(model, input_tensor)
 
         if "Cannot detect" in label:
+            
             st.warning(label)
         else:
-            st.success(f"🏷️ Predicted Class: **{label}**")
+            
+            confidence = np.max(probs) * 100
+            st.success(f"🏷️ Predicted Class: **{label}**  \n📊 Confidence: **{confidence:.1f}%**")
+
