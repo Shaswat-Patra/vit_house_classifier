@@ -1,6 +1,9 @@
 streamlit
 torch
-timm
 torchvision
-Pillow
+timm
 gdown
+Pillow
+matplotlib
+seaborn
+
