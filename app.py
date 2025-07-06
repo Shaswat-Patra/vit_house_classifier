@@ -9,6 +9,15 @@ import numpy as np
 import timm
 import gdown
 
+import streamlit as st
+
+# Simple access control
+password = st.text_input("Enter access code:", type="password")
+if password != "datamatrixai":
+    st.warning("🔐 Enter the correct password to access the classifier.")
+    st.stop()
+
+
 # ------------------- Configuration -------------------
 MODEL_PATH = "best_vit_model.pth"
 DRIVE_FILE_ID = "1V-IUkXzZ0pGqN2LsON585FnL9TUdslWw"  # 🔁 Replace with your real Google Drive file ID
