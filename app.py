@@ -12,7 +12,7 @@ import requests
 # ------------------- Configuration -------------------
 MODEL_PATH = "best_vit_model.pth"
 CLASS_NAMES = ['Kutcha House', 'Pucca House']
-CONFIDENCE_THRESHOLD = 0.60
+CONFIDENCE_THRESHOLD = 0.80
 
 # ------------------- Download and Load Model -------------------
 @st.cache_resource
